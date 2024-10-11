@@ -1,56 +1,58 @@
-const { Configuration, OpenAIApi } = require("openai");
-const cloudinary = require('cloudinary').v2;
+const { cloudinary, openai } = require('../config/cloudinaryOpenAIConfig');
 const Image = require('../Models/Image');
 const User = require('../Models/User');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-// Cloudinary Configuration 
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
-});
-
-// OPENAI Configuration
-const openai = new OpenAIApi(new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-}));
-
 // Utility function for error handling
 const handleError = (res, error, status = 400) => {
+  console.error(error);
   return res.status(status).json({ error: error.message || error });
 };
 
+// Helper function to verify JWT token
+const verifyToken = (token) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, process.env.SECRET, (err, user) => {
+      if (err) reject(err);
+      else resolve(user);
+    });
+  });
+};
+
+// Create an image using OpenAI's API
 const createImage = async (req, res) => {
+  const { prompt, size = "512x512" } = req.body;
   try {
-    const response = await openai.createImage({
-      prompt: req.body.prompt,
+    const { data } = await openai.createImage({
+      prompt,
       n: 1,
-      size: "512x512",
+      size,
       response_format: "b64_json",
     });
-    res.status(200).json({ photo: response.data.data[0].b64_json });
+    res.status(200).json({ photo: data.data[0].b64_json });
   } catch (error) {
     handleError(res, error);
   }
 };
 
+// Share an image and store it in the database
 const shareImage = async (req, res) => {
   const { name, prompt, photo } = req.body;
   if (!name || !prompt || !photo) {
     return handleError(res, "Information Incomplete", 400);
   }
-  
+
   try {
-    const photoURL = await cloudinary.uploader.upload(photo);
-    const task = await Image.create({ name, prompt, photo: photoURL.url });
+    const { url } = await cloudinary.uploader.upload(photo);
+    const task = await Image.create({ name, prompt, photo: url });
     res.status(200).json({ userentry: task });
   } catch (error) {
     handleError(res, error);
   }
 };
 
+// Get all images from the database
 const getImage = async (req, res) => {
   try {
     const posts = await Image.find();
@@ -60,54 +62,61 @@ const getImage = async (req, res) => {
   }
 };
 
+// Sign up a new user and issue a JWT token
 const signUp = async (req, res) => {
   const { email, password, name } = req.body;
   try {
     const user = await User.Signup(email, password, name);
-    const access_token = jwt.sign({ email: user.email }, process.env.SECRET);
-    res.status(200).json({ user, token: access_token });
+    const token = jwt.sign({ email: user.email }, process.env.SECRET);
+    res.status(200).json({ user, token });
   } catch (error) {
     handleError(res, error, 406);
   }
 };
 
+// Log in an existing user and issue a JWT token
 const login = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.Login(email, password);
-    const access_token = jwt.sign({ email: user.email }, process.env.SECRET);
-    res.status(200).json({ user, token: access_token });
+    const token = jwt.sign({ email: user.email }, process.env.SECRET);
+    res.status(200).json({ user, token });
   } catch (error) {
     handleError(res, error, 406);
   }
 };
 
-const tokenAuthorization = (req, res, next) => {
-  const Authtoken = req.headers["x-access-token"];
-  if (!Authtoken) return handleError(res, "Token required", 403);
+// Middleware for token authorization
+const tokenAuthorization = async (req, res, next) => {
+  const token = req.headers["x-access-token"];
+  if (!token) return handleError(res, "Token required", 403);
 
-  jwt.verify(Authtoken, process.env.SECRET, (err, user) => {
-    if (err) return handleError(res, "Invalid Token", 400);
+  try {
+    const user = await verifyToken(token);
     req.body.user = user;
     next();
-  });
+  } catch (err) {
+    handleError(res, "Invalid Token", 400);
+  }
 };
 
+// Update image likes and update the user's liked images
 const likeImage = async (req, res) => {
   try {
     const { likes, userName } = req.body;
     const imageId = req.params.id;
 
+    // Update the image likes
     await Image.updateOne({ _id: imageId }, { Likes: likes });
 
     if (userName) {
       const user = await User.findOne({ name: userName });
-      const updated_list = user.likedImages.includes(imageId)
+      const updatedList = user.likedImages.includes(imageId)
         ? user.likedImages.filter((a) => a !== imageId)
         : [...user.likedImages, imageId];
 
-      await User.updateOne({ name: userName }, { likedImages: updated_list });
-      return res.status(200).json({ likes, updated_list });
+      await User.updateOne({ name: userName }, { likedImages: updatedList });
+      return res.status(200).json({ likes, updatedList });
     }
 
     res.status(200).json({ likes });
@@ -116,6 +125,7 @@ const likeImage = async (req, res) => {
   }
 };
 
+// Get liked images for a specific user
 const likedImages = async (req, res) => {
   try {
     const user = await User.findOne({ name: req.params.name });
