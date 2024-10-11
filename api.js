@@ -11,7 +11,7 @@ app.use(cors())
 
 
 PORT = process.env.PORT || 5000
-const BASE_URL = require("../config/index")
+const BASE_URL = require("./index")
 
 app.use(express.json({limit: '50mb'}));
 
