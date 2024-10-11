@@ -11,7 +11,7 @@ const {
     likedImages
 } = require('./functions/controller/tasks.js');
 const serverless = require('serverless-http');
-const dbConfig = require("./functions/db/connect.js"); // Ensure this is correctly configured
+const dbConfig = require("./functions/db/connect.js");
 const cors = require('cors');
 const app = express();
 const jwt = require('jsonwebtoken');
@@ -20,9 +20,7 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
 // Connecting to the database
-dbConfig(); // Call the function to connect to your database if needed
-
-const PORT = process.env.PORT || 5000; // Define PORT but avoid using it for listening in serverless
+dbConfig(); // Ensure DB connection logic is implemented
 
 const BASE_URL = require("./config/index.js");
 
@@ -46,16 +44,4 @@ app.get(`${BASE_URL}/`, (req, res) => {
 });
 
 // Handler for serverless function
-const handler = serverless(app);
-module.exports.handler = async (event, context) => {
-    try {
-        const result = await handler(event, context);
-        return result;
-    } catch (error) {
-        console.error("Error handling request:", error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: "Internal Server Error" })
-        };
-    }
-};
+module.exports.handler = serverless(app);
