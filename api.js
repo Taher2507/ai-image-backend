@@ -1,8 +1,8 @@
 require('dotenv').config()
 const express = require('express')
-const {createImage, shareImage, getImage, signUp, login,tokenAuthorization, likeImage, likedImages} = require('../functions/controller/tasks')
+const {createImage, shareImage, getImage, signUp, login,tokenAuthorization, likeImage, likedImages} = require('./functions/controller/tasks.js')
 const serverless = require('serverless-http')
-const dbConfig = require("../functions/db/connect");
+const dbConfig = require("./functions/db/connect");
 const cors = require('cors')
 const app = express()
 const jwt = require('jsonwebtoken')
@@ -11,7 +11,7 @@ app.use(cors())
 
 
 PORT = process.env.PORT || 5000
-const BASE_URL = require("./index")
+const BASE_URL = require("./config/index.js")
 
 app.use(express.json({limit: '50mb'}));
 
