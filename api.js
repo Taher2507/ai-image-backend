@@ -11,7 +11,7 @@ const {
     likedImages
 } = require('./functions/controller/tasks.js');
 const serverless = require('serverless-http');
-const dbConfig = require("./functions/db/connect"); // Ensure this is correctly configured
+const dbConfig = require("./functions/db/connect.js"); // Ensure this is correctly configured
 const cors = require('cors');
 const app = express();
 const jwt = require('jsonwebtoken');
