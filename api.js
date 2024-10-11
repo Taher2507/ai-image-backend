@@ -10,7 +10,6 @@ const {
     likeImage,
     likedImages
 } = require('./functions/controller/tasks.js');
-const serverless = require('serverless-http');
 const dbConfig = require("./functions/db/connect.js");
 const cors = require('cors');
 const app = express();
@@ -43,5 +42,8 @@ app.get(`${BASE_URL}/`, (req, res) => {
     res.send("Server is Running...");
 });
 
-// Handler for serverless function
-module.exports.handler = serverless(app);
+// For Render (binding to a port)
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
