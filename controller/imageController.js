@@ -1,8 +1,6 @@
 const { cloudinary, openai } = require('../config/cloudinaryOpenAIConfig');
 const Image = require('../Models/Image');
 const User = require('../Models/User');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
 
 // Utility function for error handling
 const handleError = (res, error, status = 400) => {
@@ -10,19 +8,10 @@ const handleError = (res, error, status = 400) => {
   return res.status(status).json({ error: error.message || error });
 };
 
-// Helper function to verify JWT token
-const verifyToken = (token) => {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, process.env.SECRET, (err, user) => {
-      if (err) reject(err);
-      else resolve(user);
-    });
-  });
-};
-
 // Create an image using OpenAI's API
 const createImage = async (req, res) => {
   const { prompt, size = "512x512" } = req.body;
+
   try {
     const { data } = await openai.createImage({
       prompt,
@@ -39,6 +28,7 @@ const createImage = async (req, res) => {
 // Share an image and store it in the database
 const shareImage = async (req, res) => {
   const { name, prompt, photo } = req.body;
+
   if (!name || !prompt || !photo) {
     return handleError(res, "Information Incomplete", 400);
   }
@@ -62,45 +52,7 @@ const getImage = async (req, res) => {
   }
 };
 
-// Sign up a new user and issue a JWT token
-const signUp = async (req, res) => {
-  const { email, password, name } = req.body;
-  try {
-    const user = await User.Signup(email, password, name);
-    const token = jwt.sign({ email: user.email }, process.env.SECRET);
-    res.status(200).json({ user, token });
-  } catch (error) {
-    handleError(res, error, 406);
-  }
-};
-
-// Log in an existing user and issue a JWT token
-const login = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const user = await User.Login(email, password);
-    const token = jwt.sign({ email: user.email }, process.env.SECRET);
-    res.status(200).json({ user, token });
-  } catch (error) {
-    handleError(res, error, 406);
-  }
-};
-
-// Middleware for token authorization
-const tokenAuthorization = async (req, res, next) => {
-  const token = req.headers["x-access-token"];
-  if (!token) return handleError(res, "Token required", 403);
-
-  try {
-    const user = await verifyToken(token);
-    req.body.user = user;
-    next();
-  } catch (err) {
-    handleError(res, "Invalid Token", 400);
-  }
-};
-
-// Update image likes and update the user's liked images
+// Update image likes and user's liked images
 const likeImage = async (req, res) => {
   try {
     const { likes, userName } = req.body;
@@ -140,9 +92,6 @@ module.exports = {
   createImage,
   shareImage,
   getImage,
-  signUp,
-  login,
-  tokenAuthorization,
   likeImage,
   likedImages,
 };
