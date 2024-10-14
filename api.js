@@ -18,20 +18,20 @@ dbConfig();
 const BASE_URL = process.env.BASE_URL || '/api'; // Default to '/api' if BASE_URL isn't set
 
 // Authentication Routes
-app.post(`${BASE_URL}/signup`, tasksController.signUp);
-app.post(`${BASE_URL}/login`, tasksController.login);
+app.post(`${BASE_URL}signup`, tasksController.signUp);
+app.post(`${BASE_URL}login`, tasksController.login);
 
 // Image-related Routes
 app.post(`${BASE_URL}/post`, tokenAuthorization, tasksController.createImage);
-app.post(`${BASE_URL}/share`, tasksController.shareImage);
-app.get(`${BASE_URL}/get`, tasksController.getImage);
+app.post(`${BASE_URL}share`, tasksController.shareImage);
+app.get(`${BASE_URL}get`, tasksController.getImage);
 
 // Like-related Routes
-app.patch(`${BASE_URL}/:id`, tasksController.likeImage);
-app.get(`${BASE_URL}/get/:name`, tasksController.likedImages);
+app.patch(`${BASE_URL}:id`, tasksController.likeImage);
+app.get(`${BASE_URL}get/:name`, tasksController.likedImages);
 
 // Authorization Route
-app.post(`${BASE_URL}/Authorize`, (req, res) => {
+app.post(`${BASE_URL}Authorize`, (req, res) => {
     const Authtoken = req.headers["x-access-token"];
 
     jwt.verify(Authtoken, process.env.SECRET, (err, user) => {
