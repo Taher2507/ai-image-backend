@@ -22,7 +22,7 @@ app.post(`${BASE_URL}signup`, tasksController.signUp);
 app.post(`${BASE_URL}login`, tasksController.login);
 
 // Image-related Routes
-app.post(`${BASE_URL}/post`, tokenAuthorization, tasksController.createImage);
+app.post(`${BASE_URL}post`, tokenAuthorization, tasksController.createImage);
 app.post(`${BASE_URL}share`, tasksController.shareImage);
 app.get(`${BASE_URL}get`, tasksController.getImage);
 
