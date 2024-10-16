@@ -10,8 +10,6 @@ app.use(express.json({ limit: '50mb' }));
 // Connect to the database
 dbConfig(); 
 
-// Routes
-const BASE_URL = process.env.BASE_URL; 
 
 // Import Routes
 const userRoutes = require('./routes/userRoutes');
