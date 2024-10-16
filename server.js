@@ -18,8 +18,8 @@ const userRoutes = require('./routes/userRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 
 // Use Routes
-app.use(`${BASE_URL}/users`, userRoutes); // For user-related routes
-app.use(`${BASE_URL}/images`, imageRoutes); // For image-related routes
+app.use(`/users`, userRoutes); // For user-related routes
+app.use(`${BASE_URL}images`, imageRoutes); // For image-related routes
 
 // Base Route to check if the server is running
 app.get(`${BASE_URL}`, (req, res) => {
@@ -32,7 +32,7 @@ app.use((req, res) => {
 });
 
 // For Render (binding to a port)
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
