@@ -11,15 +11,15 @@ app.use(express.json({ limit: '50mb' }));
 dbConfig(); 
 
 // Routes
-const BASE_URL = process.env.BASE_URL; // Default to '/api' if BASE_URL isn't set
+const BASE_URL = process.env.BASE_URL; 
 
 // Import Routes
 const userRoutes = require('./routes/userRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 
 // Use Routes
-app.use(`${BASE_URL}users`, userRoutes); // For user-related routes
-app.use(`${BASE_URL}images`, imageRoutes); // For image-related routes
+app.use(`${BASE_URL}/users`, userRoutes); // For user-related routes
+app.use(`${BASE_URL}/images`, imageRoutes); // For image-related routes
 
 // Base Route to check if the server is running
 app.get(`${BASE_URL}`, (req, res) => {
