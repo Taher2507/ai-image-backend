@@ -22,7 +22,7 @@ app.use(`${BASE_URL}users`, userRoutes); // For user-related routes
 app.use(`${BASE_URL}images`, imageRoutes); // For image-related routes
 
 // Base Route to check if the server is running
-app.get(`${BASE_URL}/`, (req, res) => {
+app.get(`${BASE_URL}`, (req, res) => {
     res.send("Server is Running...");
 });
 
