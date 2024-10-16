@@ -19,10 +19,10 @@ const imageRoutes = require('./routes/imageRoutes');
 
 // Use Routes
 app.use(`/users`, userRoutes); // For user-related routes
-app.use(`${BASE_URL}images`, imageRoutes); // For image-related routes
+app.use(`/images`, imageRoutes); // For image-related routes
 
 // Base Route to check if the server is running
-app.get(`${BASE_URL}`, (req, res) => {
+app.get(`/`, (req, res) => {
     res.send("Server is Running...");
 });
 
