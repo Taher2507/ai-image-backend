@@ -11,7 +11,7 @@ app.use(express.json({ limit: '50mb' }));
 dbConfig(); 
 
 // Routes
-const BASE_URL = process.env.BASE_URL || '/api'; // Default to '/api' if BASE_URL isn't set
+const BASE_URL = process.env.BASE_URL; // Default to '/api' if BASE_URL isn't set
 
 // Import Routes
 const userRoutes = require('./routes/userRoutes');
